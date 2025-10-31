@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ICICI Lombard Portal</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+      :root {
+        --primary: #1d4ed8;
+        --primary-light: #3b82f6;
+        --primary-dark: #1e40af;
+        --secondary: #06b6d4;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --text-lighter: #9ca3af;
+        --background: #f9fafb;
+        --card-bg: #ffffff;
+        --card-hover: #f8fafc;
+        --border: #e5e7eb;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --border-radius: 8px;
+        --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --box-shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--text);
+        display: flex;
+        min-height: 100vh;
+        font-size: 14px;
+        line-height: 1.4;
+        overflow-x: hidden;
+      }
+
+      /* Sidebar Styles */
+      .sidebar {
+        width: 220px;
+        background: var(--card-bg);
+        color: var(--text);
+        height: 100vh;
+        position: fixed;
+        padding: 20px 0;
+        transition: all 0.3s;
+        box-shadow: var(--box-shadow);
+        z-index: 1000;
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+      }
+
+      .logo-container {
+        display: flex;
+        align-items: center;
+        padding: 0 20px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .logo {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 16px;
+        margin-right: 10px;
+      }
+
+      .logo-text {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .menu {
+        list-style: none;
+        padding: 20px 0;
+      }
+
+      .menu-item {
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+        margin: 4px 0;
+        font-size: 14px;
+      }
+
+      .menu-item:hover {
+        background: var(--background);
+      }
+
+      .menu-item.active {
+        background: rgba(29, 78, 216, 0.05);
+        border-left: 3px solid var(--primary);
+        color: var(--primary);
+      }
+
+      .menu-item i {
+        margin-right: 12px;
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
+      }
+
+      /* Main Content Styles */
+      .main-content {
+        flex: 1;
+        margin-left: 220px;
+        padding: 20px;
+        transition: all 0.3s;
+        max-width: calc(100vw - 220px);
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0 20px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+      }
+
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .page-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      /* Section Styles */
+      .section {
+        display: none;
+      }
+
+      .active-section {
+        display: block;
+      }
+
+      .filter-section {
+        display: flex;
+        justify-content: space-between;
+        margin: 20px 0;
+        align-items: center;
+      }
+
+      .filter-controls {
+        display: flex;
+        gap: 8px;
+      }
+
+      .filter-btn {
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        background: white;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 13px;
+      }
+
+      .filter-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .date-filter {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .date-filter select {
+        padding: 6px 10px;
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius);
+        background: white;
+        font-size: 13px;
+      }
+
+      .cards-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 16px;
+        box-shadow: var(--box-shadow);
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+      }
+
+      .card:hover {
+        box-shadow: var(--box-shadow-lg);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .card-title {
+        font-size: 13px;
+        color: var(--text-light);
+        font-weight: 500;
+      }
+
+      .card-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+      }
+
+      .card-value {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .card-change {
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+      }
+
+      .card-change.positive {
+        color: var(--success);
+      }
+
+      .card-change.negative {
+        color: var(--danger);
+      }
+
+      .charts-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+        height: 300px;
+      }
+
+      .chart-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 16px;
+        box-shadow: var(--box-shadow);
+        border: 1px solid var(--border);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chart-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--text);
+      }
+
+      .chart-container {
+        flex: 1;
+        position: relative;
+        min-height: 0;
+      }
+
+      /* Recharge Section */
+      .recharge-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .recharge-form {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        box-shadow: var(--box-shadow);
+        border: 1px solid var(--border);
+      }
+
+      .form-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--text);
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--text);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius);
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+
+      .form-input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+      }
+
+      .amount-splitter {
+        background: var(--background);
+        padding: 12px;
+        border-radius: var(--border-radius);
+        margin-top: 16px;
+      }
+
+      .split-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .split-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+
+      .split-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .split-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+      }
+
+      .split-input {
+        width: 80px;
+        padding: 6px 8px;
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius);
+        text-align: right;
+        font-size: 13px;
+      }
+
+      .total-amount {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 2px solid var(--border);
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 13px;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn-secondary {
+        background: var(--secondary);
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #0891b2;
+      }
+
+      /* User Info Section */
+      .user-profile {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 24px;
+        box-shadow: var(--box-shadow);
+        display: flex;
+        gap: 24px;
+        border: 1px solid var(--border);
+      }
+
+      .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-lighter);
+        font-size: 36px;
+        flex-shrink: 0;
+      }
+
+      .profile-details {
+        flex: 1;
+      }
+
+      .profile-name {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .profile-id {
+        color: var(--text-light);
+        margin-bottom: 16px;
+        font-size: 14px;
+      }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .detail-item {
+        margin-bottom: 12px;
+      }
+
+      .detail-label {
+        font-size: 12px;
+        color: var(--text-light);
+        margin-bottom: 4px;
+      }
+
+      .detail-value {
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      /* Payment History Section */
+      .table-container {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        border: 1px solid var(--border);
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        background: var(--card-bg);
+        z-index: 10;
+      }
+
+      .table-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .table-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+      }
+
+      th {
+        background: var(--background);
+        font-weight: 600;
+        color: var(--text-light);
+        position: sticky;
+        top: 60px;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .status {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .status-completed {
+        background: #d1fae5;
+        color: var(--success);
+      }
+
+      .status-pending {
+        background: #fef3c7;
+        color: var(--warning);
+      }
+
+      /* Invoice Section */
+      .invoice-list {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        border: 1px solid var(--border);
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .invoice-template {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+      }
+      .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .invoice-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .invoice-brand img {
+        height: 36px;
+      }
+      .invoice-brand .brand-name {
+        font-weight: 700;
+        font-size: 16px;
+      }
+      .invoice-meta {
+        text-align: right;
+        font-size: 13px;
+      }
+      .invoice-body {
+        padding: 20px;
+      }
+      .invoice-two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .invoice-box-title {
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .invoice-subtle {
+        color: var(--text-light);
+        font-size: 12px;
+      }
+      .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        border: 1px solid var(--border);
+      }
+      .invoice-table th,
+      .invoice-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+      }
+      .invoice-table th {
+        background: var(--background);
+        text-align: left;
+      }
+      .invoice-total {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+      .invoice-total table {
+        width: 320px;
+        border-collapse: collapse;
+      }
+      .invoice-total td {
+        padding: 6px 0;
+        font-size: 14px;
+      }
+      .invoice-total .label {
+        color: var(--text-light);
+      }
+      .invoice-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        padding: 12px 20px;
+        border-top: 1px solid var(--border);
+      }
+
+      /* Print styles */
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #invoice-printable,
+        #invoice-printable * {
+          visibility: visible;
+        }
+        #invoice-printable {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+      }
+
+      .invoice-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s;
+      }
+
+      .invoice-item:hover {
+        background: var(--background);
+      }
+
+      .invoice-item:last-child {
+        border-bottom: none;
+      }
+
+      .invoice-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .invoice-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--primary-light);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+
+      .invoice-details {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .invoice-id {
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .invoice-date {
+        font-size: 12px;
+        color: var(--text-light);
+      }
+
+      .invoice-amount {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 14px;
+      }
+
+      .invoice-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
+      /* Toast Notification */
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: var(--success);
+        color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow-lg);
+        z-index: 1001;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s;
+        font-size: 14px;
+      }
+
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .toast.error {
+        background: var(--danger);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1200px) {
+        .charts-container {
+          grid-template-columns: 1fr;
+          height: auto;
+        }
+
+        .chart-card {
+          height: 300px;
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .sidebar {
+          width: 70px;
+        }
+
+        .logo-text,
+        .menu-text {
+          display: none;
+        }
+
+        .main-content {
+          margin-left: 70px;
+          max-width: calc(100vw - 70px);
+        }
+
+        .menu-item {
+          justify-content: center;
+          padding: 10px 0;
+        }
+
+        .menu-item i {
+          margin-right: 0;
+          font-size: 16px;
+        }
+
+        .recharge-container {
+          grid-template-columns: 1fr;
+        }
+
+        .user-profile {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .detail-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .cards-container {
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+
+        .filter-section {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .table-container,
+        .invoice-list {
+          max-height: 400px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .main-content {
+          padding: 15px;
+        }
+
+        .cards-container {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-container">
+        <div class="logo">IL</div>
+        <div class="logo-text">ICICI Lombard</div>
+      </div>
+      <ul class="menu">
+        <li class="menu-item active" data-section="dashboard">
+          <i class="fas fa-chart-pie"></i>
+          <span class="menu-text">Dashboard</span>
+        </li>
+        <li class="menu-item" data-section="recharge">
+          <i class="fas fa-credit-card"></i>
+          <span class="menu-text">Recharge</span>
+        </li>
+        <li class="menu-item" data-section="manage-amount">
+          <i class="fas fa-sliders-h"></i>
+          <span class="menu-text">Manage Amount</span>
+        </li>
+        <li class="menu-item" data-section="payment-history">
+          <i class="fas fa-history"></i>
+          <span class="menu-text">Payment History</span>
+        </li>
+        <li class="menu-item" data-section="invoice">
+          <i class="fas fa-file-invoice"></i>
+          <span class="menu-text">Invoice</span>
+        </li>
+        <li class="menu-item" data-section="user-info">
+          <i class="fas fa-user"></i>
+          <span class="menu-text">User Info</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header">
+        <h1 class="page-title">Dashboard</h1>
+        <div class="user-info">
+          <div class="user-avatar">JD</div>
+          <div>
+            <div class="user-name">John Doe</div>
+            <div class="user-role">Dealer</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="section active-section">
+        <div class="filter-section">
+          <div class="filter-controls">
+            <button class="filter-btn active">Today</button>
+            <button class="filter-btn">Week</button>
+            <button class="filter-btn">Month</button>
+            <button class="filter-btn">Year</button>
+          </div>
+          <div class="date-filter">
+            <select id="month-filter">
+              <option>January 2023</option>
+              <option>February 2023</option>
+              <option>March 2023</option>
+              <option selected>April 2023</option>
+              <option>May 2023</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cards-container">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Total Balance</div>
+              <div class="card-icon" style="background: var(--primary)">
+                <i class="fas fa-wallet"></i>
+              </div>
+            </div>
+            <div class="card-value">
+              <span id="total-balance-value">₹ 85,430</span>
+            </div>
+            <div class="card-change positive">
+              <i class="fas fa-arrow-up"></i> 12.5% from last month
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">SMS Balance</div>
+              <div class="card-icon" style="background: var(--success)">
+                <i class="fas fa-sms"></i>
+              </div>
+            </div>
+            <div class="card-value">12,540</div>
+            <div class="card-change negative">
+              <i class="fas fa-arrow-down"></i> 3.2% from last month
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">WhatsApp Balance</div>
+              <div class="card-icon" style="background: #25d366">
+                <i class="fab fa-whatsapp"></i>
+              </div>
+            </div>
+            <div class="card-value">8,750</div>
+            <div class="card-change positive">
+              <i class="fas fa-arrow-up"></i> 8.7% from last month
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">IVR Call Balance</div>
+              <div class="card-icon" style="background: var(--warning)">
+                <i class="fas fa-phone"></i>
+              </div>
+            </div>
+            <div class="card-value">5,230</div>
+            <div class="card-change positive">
+              <i class="fas fa-arrow-up"></i> 5.3% from last month
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Email Balance</div>
+              <div class="card-icon" style="background: var(--danger)">
+                <i class="fas fa-envelope"></i>
+              </div>
+            </div>
+            <div class="card-value">15,320</div>
+            <div class="card-change positive">
+              <i class="fas fa-arrow-up"></i> 10.2% from last month
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-container">
+          <div class="chart-card">
+            <div class="chart-title">Usage Overview</div>
+            <div class="chart-container">
+              <canvas id="usageChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Balance Distribution</div>
+            <div class="chart-container">
+              <canvas id="distributionChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recharge Section -->
+      <section id="recharge" class="section">
+        <div class="recharge-container">
+          <div class="recharge-form">
+            <h2 class="form-title">Recharge Wallet</h2>
+            <div class="form-group">
+              <label class="form-label">Enter Amount (₹)</label>
+              <input
+                type="number"
+                class="form-input"
+                id="recharge-amount"
+                placeholder="Enter amount"
+                min="1"
+              />
+            </div>
+            <div class="action-buttons">
+              <button class="btn btn-primary" id="proceed-payment-btn">
+                <i class="fas fa-lock"></i> Proceed to Payment
+              </button>
+            </div>
+            <div
+              id="payment-success-info"
+              style="
+                display: none;
+                margin-top: 16px;
+                color: var(--success);
+                font-weight: 600;
+              "
+            ></div>
+          </div>
+
+          <!-- Split moved to Manage Amount section -->
+        </div>
+      </section>
+
+      <!-- Manage Amount Section -->
+      <section id="manage-amount" class="section">
+        <div class="recharge-container">
+          <div class="recharge-form">
+            <h2 class="form-title">Manage Your Amount</h2>
+            <div class="amount-splitter">
+              <div class="split-item">
+                <div class="split-label">
+                  <input type="checkbox" id="ma-sms-enable" />
+                  <div class="split-icon" style="background: var(--success)">
+                    <i class="fas fa-sms"></i>
+                  </div>
+                  <span>SMS</span>
+                </div>
+                <input
+                  type="number"
+                  class="split-input"
+                  id="ma-sms-amount"
+                  placeholder="0"
+                  disabled
+                />
+              </div>
+              <div class="split-item">
+                <div class="split-label">
+                  <input type="checkbox" id="ma-whatsapp-enable" />
+                  <div class="split-icon" style="background: #25d366">
+                    <i class="fab fa-whatsapp"></i>
+                  </div>
+                  <span>WhatsApp</span>
+                </div>
+                <input
+                  type="number"
+                  class="split-input"
+                  id="ma-whatsapp-amount"
+                  placeholder="0"
+                  disabled
+                />
+              </div>
+              <div class="split-item">
+                <div class="split-label">
+                  <input type="checkbox" id="ma-ivr-enable" />
+                  <div class="split-icon" style="background: var(--warning)">
+                    <i class="fas fa-phone"></i>
+                  </div>
+                  <span>IVR</span>
+                </div>
+                <input
+                  type="number"
+                  class="split-input"
+                  id="ma-ivr-amount"
+                  placeholder="0"
+                  disabled
+                />
+              </div>
+              <div class="split-item">
+                <div class="split-label">
+                  <input type="checkbox" id="ma-email-enable" />
+                  <div class="split-icon" style="background: var(--danger)">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <span>Gmail</span>
+                </div>
+                <input
+                  type="number"
+                  class="split-input"
+                  id="ma-email-amount"
+                  placeholder="0"
+                  disabled
+                />
+              </div>
+              <div class="total-amount">
+                <span>Allocated</span>
+                <span id="ma-split-total">₹ 0</span>
+              </div>
+            </div>
+            <div
+              style="margin-top: 8px; font-size: 12px; color: var(--text-light)"
+            >
+              Available to allocate: <span id="ma-alloc-available">₹ 0</span>
+            </div>
+            <div class="action-buttons">
+              <button class="btn btn-secondary" id="ma-apply-split-btn">
+                <i class="fas fa-check"></i> Apply Split
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- User Info Section -->
+      <section id="user-info" class="section">
+        <div class="user-profile">
+          <div class="profile-image">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="profile-details">
+            <h2 class="profile-name">John Doe</h2>
+            <div class="profile-id">Account ID: ILD783429</div>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="detail-label">Phone Number</div>
+                <div class="detail-value">+91 98765 43210</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Email Address</div>
+                <div class="detail-value">john.doe@icicilombard.com</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Address</div>
+                <div class="detail-value">
+                  123 Business Park, Sector 45, Gurugram, Haryana 122001
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Dealer Since</div>
+                <div class="detail-value">March 15, 2020</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Account Status</div>
+                <div class="detail-value" style="color: var(--success)">
+                  Active
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Last Login</div>
+                <div class="detail-value">April 25, 2023, 10:30 AM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Payment History Section -->
+      <section id="payment-history" class="section">
+        <div class="table-container">
+          <div class="table-header">
+            <h2 class="table-title">Payment History</h2>
+            <div class="table-actions">
+              <select class="filter-btn" id="status-filter">
+                <option value="all">All Status</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+                <option value="failed">Failed</option>
+              </select>
+              <input
+                type="text"
+                class="filter-btn"
+                id="search-payments"
+                placeholder="Search..."
+              />
+            </div>
+          </div>
+          <table id="payments-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Transaction ID</th>
+                <th>Platform</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Apr 25, 2023</td>
+                <td>TXN784329</td>
+                <td>SMS</td>
+                <td>₹ 5,000</td>
+                <td><span class="status status-completed">Completed</span></td>
+              </tr>
+              <tr>
+                <td>Apr 20, 2023</td>
+                <td>TXN784328</td>
+                <td>WhatsApp</td>
+                <td>₹ 3,500</td>
+                <td><span class="status status-completed">Completed</span></td>
+              </tr>
+              <tr>
+                <td>Apr 15, 2023</td>
+                <td>TXN784327</td>
+                <td>IVR Calls</td>
+                <td>₹ 2,000</td>
+                <td><span class="status status-completed">Completed</span></td>
+              </tr>
+              <tr>
+                <td>Apr 10, 2023</td>
+                <td>TXN784326</td>
+                <td>Email</td>
+                <td>₹ 4,000</td>
+                <td><span class="status status-pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td>Apr 5, 2023</td>
+                <td>TXN784325</td>
+                <td>SMS</td>
+                <td>₹ 6,000</td>
+                <td><span class="status status-completed">Completed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Invoice Section -->
+      <section id="invoice" class="section">
+        <div class="table-container">
+          <div class="table-header">
+            <h2 class="table-title">Invoices</h2>
+            <div class="table-actions">
+              <input type="date" class="filter-btn" id="inv-date-from" />
+              <input type="date" class="filter-btn" id="inv-date-to" />
+              <select class="filter-btn" id="inv-status-filter">
+                <option value="all">All</option>
+                <option value="paid">Paid</option>
+                <option value="unpaid">Unpaid</option>
+                <option value="overdue">Overdue</option>
+              </select>
+              <input
+                type="text"
+                class="filter-btn"
+                id="inv-search"
+                placeholder="Search by ID or Dealer..."
+              />
+            </div>
+          </div>
+          <table id="invoice-table">
+            <thead>
+              <tr>
+                <th>Invoice ID</th>
+                <th>Dealer</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="invoice-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+    <!-- Modals -->
+    <div
+      id="modal-overlay"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1002;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        id="payment-modal"
+        style="
+          display: none;
+          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          box-shadow: var(--box-shadow-lg);
+          width: 360px;
+          max-width: 90%;
+          padding: 20px;
+          text-align: center;
+        "
+      >
+        <div style="font-size: 40px; color: var(--primary); margin-bottom: 8px">
+          <i class="fas fa-credit-card"></i>
+        </div>
+        <div style="font-weight: 600; margin-bottom: 4px">
+          Connecting to Razorpay…
+        </div>
+        <div
+          style="color: var(--text-light); font-size: 13px; margin-bottom: 16px"
+        >
+          Please wait while we initialize the payment.
+        </div>
+        <button class="btn btn-secondary" id="cancel-payment-btn">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+      <div
+        id="confirm-modal"
+        style="
+          display: none;
+          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          box-shadow: var(--box-shadow-lg);
+          width: 380px;
+          max-width: 90%;
+          padding: 20px;
+        "
+      >
+        <div style="font-weight: 700; font-size: 16px; margin-bottom: 8px">
+          Confirm Allocation
+        </div>
+        <div
+          id="confirm-summary"
+          style="font-size: 14px; color: var(--text)"
+        ></div>
+        <div
+          class="action-buttons"
+          style="justify-content: flex-end; margin-top: 16px"
+        >
+          <button class="btn" id="confirm-cancel-btn">Cancel</button>
+          <button class="btn btn-primary" id="confirm-apply-btn">
+            <i class="fas fa-check"></i> Confirm
+          </button>
+        </div>
+      </div>
+      <div
+        id="invoice-modal"
+        style="
+          display: none;
+          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          box-shadow: var(--box-shadow-lg);
+          width: 820px;
+          max-width: 95%;
+          max-height: 90vh;
+          overflow: auto;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: flex-end;
+            padding: 8px 8px 0 8px;
+          "
+        >
+          <button class="btn btn-sm" id="invoice-close-btn">
+            <i class="fas fa-times"></i> Close
+          </button>
+        </div>
+        <div class="invoice-template" id="invoice-printable">
+          <div class="invoice-header">
+            <div class="invoice-brand">
+              <img
+                src="https://www.ikontel.com/assets/img/logo/iKonTel-logo.png"
+                alt="IkonTel"
+              />
+              <div class="brand-name">IkonTel Communications</div>
+            </div>
+            <div class="invoice-meta">
+              <div>
+                <strong>Invoice</strong> <span id="inv-id">INV-0001</span>
+              </div>
+              <div class="invoice-subtle">
+                Date: <span id="inv-date">2025-10-31</span>
+              </div>
+              <div class="invoice-subtle">
+                Due: <span id="inv-due">2025-11-15</span>
+              </div>
+            </div>
+          </div>
+          <div class="invoice-body">
+            <div class="invoice-two-col">
+              <div>
+                <div class="invoice-box-title">Bill To</div>
+                <div id="inv-billto-name">John Doe</div>
+                <div class="invoice-subtle" id="inv-billto-email">
+                  john.doe@example.com
+                </div>
+                <div class="invoice-subtle" id="inv-billto-phone">
+                  +91 98765 43210
+                </div>
+                <div class="invoice-subtle" id="inv-billto-address">
+                  123 Business Park, Gurugram
+                </div>
+              </div>
+              <div>
+                <div class="invoice-box-title">From</div>
+                <div>IkonTel Communications</div>
+                <div class="invoice-subtle">GSTIN: 22AAAAA0000A1Z5</div>
+                <div class="invoice-subtle">support@ikontel.com</div>
+                <div class="invoice-subtle">+91 99999 99999</div>
+              </div>
+            </div>
+
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Qty</th>
+                  <th>Rate (₹)</th>
+                  <th>Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody id="inv-items"></tbody>
+            </table>
+
+            <div class="invoice-total">
+              <table>
+                <tr>
+                  <td class="label">Subtotal</td>
+                  <td style="text-align: right" id="inv-subtotal">₹ 0.00</td>
+                </tr>
+                <tr>
+                  <td class="label">Tax (18% GST)</td>
+                  <td style="text-align: right" id="inv-tax">₹ 0.00</td>
+                </tr>
+                <tr>
+                  <td class="label"><strong>Total</strong></td>
+                  <td style="text-align: right">
+                    <strong id="inv-total">₹ 0.00</strong>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="margin-top: 12px" class="invoice-subtle">
+              Notes: Thank you for your business. Payment due within 15 days.
+            </div>
+          </div>
+          <div class="invoice-actions">
+            <button class="btn btn-secondary btn-sm" id="invoice-share-wa">
+              <i class="fab fa-whatsapp"></i> WhatsApp
+            </button>
+            <button class="btn btn-secondary btn-sm" id="invoice-share-email">
+              <i class="fas fa-envelope"></i> Email
+            </button>
+            <button class="btn btn-secondary btn-sm" id="invoice-share-native">
+              <i class="fas fa-share"></i> Share
+            </button>
+            <button class="btn btn-primary btn-sm" id="invoice-download-btn">
+              <i class="fas fa-download"></i> Download PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Navigation between sections
+      document.addEventListener("DOMContentLoaded", function () {
+        const menuItems = document.querySelectorAll(".menu-item");
+        const sections = document.querySelectorAll(".section");
+        const pageTitle = document.querySelector(".page-title");
+
+        menuItems.forEach((item) => {
+          item.addEventListener("click", function () {
+            // Remove active class from all menu items and sections
+            menuItems.forEach((i) => i.classList.remove("active"));
+            sections.forEach((s) => s.classList.remove("active-section"));
+
+            // Add active class to clicked menu item
+            this.classList.add("active");
+
+            // Show corresponding section
+            const sectionId = this.getAttribute("data-section");
+            document.getElementById(sectionId).classList.add("active-section");
+
+            // Update page title
+            const sectionName = this.querySelector(".menu-text").textContent;
+            pageTitle.textContent = sectionName;
+          });
+        });
+
+        // Initialize charts
+        initializeCharts();
+
+        // Setup recharge functionality
+        setupRechargeFunctionality();
+        // Setup manage amount functionality
+        setupManageAmount();
+
+        // Setup payment history filtering
+        setupPaymentHistoryFiltering();
+
+        // Setup invoice list + modal
+        setupInvoiceModule();
+
+        // Setup dashboard filters
+        setupDashboardFilters();
+      });
+
+      function initializeCharts() {
+        // Usage Chart
+        const usageCtx = document.getElementById("usageChart");
+        const usageChart = new Chart(usageCtx, {
+          type: "line",
+          data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            datasets: [
+              {
+                label: "SMS",
+                data: [12000, 19000, 15000, 25000, 22000, 30000],
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16, 185, 129, 0.1)",
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2,
+              },
+              {
+                label: "WhatsApp",
+                data: [8000, 12000, 10000, 15000, 18000, 22000],
+                borderColor: "#25D366",
+                backgroundColor: "rgba(37, 211, 102, 0.1)",
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2,
+              },
+              {
+                label: "IVR Calls",
+                data: [5000, 7000, 6000, 9000, 11000, 13000],
+                borderColor: "#f59e0b",
+                backgroundColor: "rgba(245, 158, 11, 0.1)",
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2,
+              },
+              {
+                label: "Email",
+                data: [10000, 15000, 13000, 18000, 20000, 25000],
+                borderColor: "#ef4444",
+                backgroundColor: "rgba(239, 68, 68, 0.1)",
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "top",
+                labels: {
+                  font: {
+                    size: 12,
+                  },
+                  padding: 10,
+                },
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  drawBorder: false,
+                },
+                ticks: {
+                  font: {
+                    size: 11,
+                  },
+                },
+              },
+              x: {
+                grid: {
+                  display: false,
+                },
+                ticks: {
+                  font: {
+                    size: 11,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        // Distribution Chart
+        const distributionCtx = document.getElementById("distributionChart");
+        const distributionChart = new Chart(distributionCtx, {
+          type: "doughnut",
+          data: {
+            labels: ["SMS", "WhatsApp", "IVR Calls", "Email"],
+            datasets: [
+              {
+                data: [30, 25, 20, 25],
+                backgroundColor: ["#10b981", "#25D366", "#f59e0b", "#ef4444"],
+                borderWidth: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  font: {
+                    size: 11,
+                  },
+                  padding: 12,
+                },
+              },
+            },
+            cutout: "70%",
+          },
+        });
+      }
+
+      // Razorpay (Test) Key
+      const RP_KEY_ID = "rzp_test_4qYpKFAMMz36Hr";
+      // Global balances
+      let totalWalletBalance = 85430; // starting example, will reflect dashboard
+      const platformBalances = {
+        sms: 12540,
+        whatsapp: 8750,
+        ivr: 5230,
+        email: 15320,
+      };
+
+      function formatCurrency(v) {
+        return `₹ ${Number(v).toLocaleString()}`;
+      }
+
+      function updateTopBalances() {
+        const totalBalanceEl = document.getElementById("total-balance-value");
+        if (totalBalanceEl)
+          totalBalanceEl.textContent = formatCurrency(totalWalletBalance);
+      }
+
+      function setupRechargeFunctionality() {
+        updateTopBalances();
+
+        const proceedPaymentBtn = document.getElementById(
+          "proceed-payment-btn"
+        );
+        const rechargeAmountInput = document.getElementById("recharge-amount");
+        const paymentSuccessInfo = document.getElementById(
+          "payment-success-info"
+        );
+        // Modal (cancel only to hide overlay if opened)
+        const overlay = document.getElementById("modal-overlay");
+        const cancelPaymentBtn = document.getElementById("cancel-payment-btn");
+        cancelPaymentBtn.addEventListener("click", function () {
+          overlay.style.display = "none";
+        });
+
+        proceedPaymentBtn.addEventListener("click", function () {
+          const amount = parseInt(rechargeAmountInput.value);
+          if (!amount || amount <= 0) {
+            showToast("Please enter a valid amount", true);
+            return;
+          }
+          const options = {
+            key: RP_KEY_ID,
+            amount: String(amount * 100),
+            currency: "INR",
+            name: "Ikontel Pvt Ltd",
+            description: "Wallet Recharge",
+            image: "https://www.ikontel.com/assets/img/logo/iKonTel-logo.png",
+            callback_url: "https://eneqd3r9zrjok.x.pipedream.net/",
+            prefill: {
+              name: "Ikontel",
+              email: "testing@ikontel.com",
+              contact: "+916370606572",
+            },
+            theme: { color: "#1d4ed8" },
+            handler: function () {
+              window.lastCreditedAmountGlobal = amount;
+              totalWalletBalance += amount;
+              updateTopBalances();
+              paymentSuccessInfo.style.display = "block";
+              paymentSuccessInfo.textContent = `Amount credited: ${formatCurrency(
+                amount
+              )}`;
+              rechargeAmountInput.value = "";
+              showToast(
+                `Payment successful. ${formatCurrency(amount)} credited.`
+              );
+            },
+          };
+          const rzp1 = new Razorpay(options);
+          rzp1.open();
+        });
+      }
+
+      function setupManageAmount() {
+        const allocAvailableEl = document.getElementById("ma-alloc-available");
+        const splitTotalEl = document.getElementById("ma-split-total");
+
+        const smsEnable = document.getElementById("ma-sms-enable");
+        const whatsappEnable = document.getElementById("ma-whatsapp-enable");
+        const ivrEnable = document.getElementById("ma-ivr-enable");
+        const emailEnable = document.getElementById("ma-email-enable");
+
+        const smsAmountInput = document.getElementById("ma-sms-amount");
+        const whatsappAmountInput =
+          document.getElementById("ma-whatsapp-amount");
+        const ivrAmountInput = document.getElementById("ma-ivr-amount");
+        const emailAmountInput = document.getElementById("ma-email-amount");
+        const applySplitBtn = document.getElementById("ma-apply-split-btn");
+
+        const overlay = document.getElementById("modal-overlay");
+        const confirmModal = document.getElementById("confirm-modal");
+        const confirmSummary = document.getElementById("confirm-summary");
+        const confirmCancelBtn = document.getElementById("confirm-cancel-btn");
+        const confirmApplyBtn = document.getElementById("confirm-apply-btn");
+
+        function openConfirm() {
+          overlay.style.display = "flex";
+          confirmModal.style.display = "block";
+        }
+        function closeConfirm() {
+          overlay.style.display = "none";
+          confirmModal.style.display = "none";
+        }
+        confirmCancelBtn.addEventListener("click", closeConfirm);
+
+        function getAvailable() {
+          const v = window.lastCreditedAmountGlobal || 0;
+          allocAvailableEl.textContent = formatCurrency(v);
+          return v;
+        }
+        getAvailable();
+
+        function updateSplitTotal() {
+          const a = smsEnable.checked ? parseInt(smsAmountInput.value) || 0 : 0;
+          const b = whatsappEnable.checked
+            ? parseInt(whatsappAmountInput.value) || 0
+            : 0;
+          const c = ivrEnable.checked ? parseInt(ivrAmountInput.value) || 0 : 0;
+          const d = emailEnable.checked
+            ? parseInt(emailAmountInput.value) || 0
+            : 0;
+          const total = a + b + c + d;
+          splitTotalEl.textContent = formatCurrency(total);
+          return total;
+        }
+        function toggleInput(checkbox, input) {
+          input.disabled = !checkbox.checked;
+          if (!checkbox.checked) input.value = "";
+          updateSplitTotal();
+        }
+        smsEnable.addEventListener("change", () =>
+          toggleInput(smsEnable, smsAmountInput)
+        );
+        whatsappEnable.addEventListener("change", () =>
+          toggleInput(whatsappEnable, whatsappAmountInput)
+        );
+        ivrEnable.addEventListener("change", () =>
+          toggleInput(ivrEnable, ivrAmountInput)
+        );
+        emailEnable.addEventListener("change", () =>
+          toggleInput(emailEnable, emailAmountInput)
+        );
+        [
+          smsAmountInput,
+          whatsappAmountInput,
+          ivrAmountInput,
+          emailAmountInput,
+        ].forEach((el) => {
+          el.addEventListener("input", () => {
+            const total = updateSplitTotal();
+            if (total > getAvailable())
+              showToast("Allocation exceeds available amount", true);
+          });
+        });
+
+        applySplitBtn.addEventListener("click", function () {
+          const allocations = {
+            sms: smsEnable.checked ? parseInt(smsAmountInput.value) || 0 : 0,
+            whatsapp: whatsappEnable.checked
+              ? parseInt(whatsappAmountInput.value) || 0
+              : 0,
+            ivr: ivrEnable.checked ? parseInt(ivrAmountInput.value) || 0 : 0,
+            email: emailEnable.checked
+              ? parseInt(emailAmountInput.value) || 0
+              : 0,
+          };
+          const totalAlloc = Object.values(allocations).reduce(
+            (s, v) => s + v,
+            0
+          );
+          const available = getAvailable();
+          if (totalAlloc === 0)
+            return showToast("Please allocate at least one platform", true);
+          if (totalAlloc > available)
+            return showToast("Allocation exceeds available amount", true);
+
+          const lines = [];
+          if (allocations.sms)
+            lines.push(`SMS: ${formatCurrency(allocations.sms)}`);
+          if (allocations.whatsapp)
+            lines.push(`WhatsApp: ${formatCurrency(allocations.whatsapp)}`);
+          if (allocations.ivr)
+            lines.push(`IVR: ${formatCurrency(allocations.ivr)}`);
+          if (allocations.email)
+            lines.push(`Gmail: ${formatCurrency(allocations.email)}`);
+          lines.push(`Total: ${formatCurrency(totalAlloc)}`);
+          confirmSummary.innerHTML = `<div style="display:flex; flex-direction:column; gap:4px">${lines
+            .map((l) => `<div>${l}</div>`)
+            .join("")}</div>`;
+          openConfirm();
+
+          function onConfirm() {
+            totalWalletBalance -= totalAlloc;
+            platformBalances.sms += allocations.sms;
+            platformBalances.whatsapp += allocations.whatsapp;
+            platformBalances.ivr += allocations.ivr;
+            platformBalances.email += allocations.email;
+            updateTopBalances();
+
+            window.lastCreditedAmountGlobal = available - totalAlloc;
+            getAvailable();
+
+            smsEnable.checked =
+              whatsappEnable.checked =
+              ivrEnable.checked =
+              emailEnable.checked =
+                false;
+            [
+              smsAmountInput,
+              whatsappAmountInput,
+              ivrAmountInput,
+              emailAmountInput,
+            ].forEach((el) => {
+              el.value = "";
+              el.disabled = true;
+            });
+            updateSplitTotal();
+
+            showToast("Allocation completed successfully.");
+            confirmApplyBtn.removeEventListener("click", onConfirm);
+            closeConfirm();
+          }
+          confirmApplyBtn.addEventListener("click", onConfirm);
+        });
+      }
+
+      function setupPaymentHistoryFiltering() {
+        const statusFilter = document.getElementById("status-filter");
+        const searchInput = document.getElementById("search-payments");
+        const tableRows = document.querySelectorAll("#payments-table tbody tr");
+
+        function filterPayments() {
+          const statusValue = statusFilter.value;
+          const searchValue = searchInput.value.toLowerCase();
+
+          tableRows.forEach((row) => {
+            const status = row
+              .querySelector(".status")
+              .textContent.toLowerCase();
+            const rowText = row.textContent.toLowerCase();
+
+            const statusMatch =
+              statusValue === "all" || status.includes(statusValue);
+            const searchMatch = rowText.includes(searchValue);
+
+            row.style.display = statusMatch && searchMatch ? "" : "none";
+          });
+        }
+
+        statusFilter.addEventListener("change", filterPayments);
+        searchInput.addEventListener("input", filterPayments);
+      }
+
+      function setupInvoiceModule() {
+        // Sample invoices (replace with API)
+        const invoices = [
+          {
+            id: "INV-2025-001",
+            dealer: "John Doe",
+            date: new Date().toISOString().slice(0, 10),
+            status: "paid",
+            items: [
+              { desc: "WhatsApp Credits", qty: 1000, rate: 0.5 },
+              { desc: "SMS Credits", qty: 2000, rate: 0.2 },
+            ],
+            taxRate: 0.18,
+          },
+          {
+            id: "INV-2025-002",
+            dealer: "Acme Corp",
+            date: new Date(Date.now() - 86400000 * 3)
+              .toISOString()
+              .slice(0, 10),
+            status: "unpaid",
+            items: [{ desc: "IVR Minutes", qty: 500, rate: 0.8 }],
+            taxRate: 0.18,
+          },
+          {
+            id: "INV-2025-003",
+            dealer: "Zenith Pvt Ltd",
+            date: new Date(Date.now() - 86400000 * 10)
+              .toISOString()
+              .slice(0, 10),
+            status: "overdue",
+            items: [{ desc: "Email Credits", qty: 10000, rate: 0.05 }],
+            taxRate: 0.18,
+          },
+        ];
+
+        const tbody = document.getElementById("invoice-tbody");
+        const dateFrom = document.getElementById("inv-date-from");
+        const dateTo = document.getElementById("inv-date-to");
+        const statusFilter = document.getElementById("inv-status-filter");
+        const searchInput = document.getElementById("inv-search");
+
+        function calcTotal(inv) {
+          const subtotal = inv.items.reduce((s, i) => s + i.qty * i.rate, 0);
+          const tax = subtotal * (inv.taxRate || 0);
+          return subtotal + tax;
+        }
+
+        function renderList() {
+          const df = dateFrom.value ? new Date(dateFrom.value) : null;
+          const dt = dateTo.value ? new Date(dateTo.value) : null;
+          const st = statusFilter.value;
+          const q = searchInput.value.toLowerCase();
+          tbody.innerHTML = invoices
+            .filter((inv) => {
+              const d = new Date(inv.date);
+              const passDate = (!df || d >= df) && (!dt || d <= dt);
+              const passStatus = st === "all" || inv.status === st;
+              const passSearch =
+                inv.id.toLowerCase().includes(q) ||
+                inv.dealer.toLowerCase().includes(q);
+              return passDate && passStatus && passSearch;
+            })
+            .map((inv) => {
+              const amt = calcTotal(inv).toFixed(2);
+              const labelClass =
+                inv.status === "paid"
+                  ? "status-completed"
+                  : inv.status === "overdue"
+                  ? "status-pending"
+                  : "";
+              return `<tr>
+                <td>${inv.id}</td>
+                <td>${inv.dealer}</td>
+                <td>${inv.date}</td>
+                <td>₹ ${amt}</td>
+                <td><span class="status ${labelClass}">${inv.status}</span></td>
+                <td><button class="btn btn-primary btn-sm inv-view" data-id="${inv.id}"><i class="fas fa-eye"></i> View</button></td>
+              </tr>`;
+            })
+            .join("");
+
+          tbody.querySelectorAll(".inv-view").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const id = btn.getAttribute("data-id");
+              const inv = invoices.find((i) => i.id === id);
+              if (inv) openInvoice(inv);
+            });
+          });
+        }
+
+        [dateFrom, dateTo, statusFilter].forEach((el) =>
+          el.addEventListener("change", renderList)
+        );
+        searchInput.addEventListener("input", renderList);
+        renderList();
+
+        // Render invoice into modal
+        function renderInvoice(data) {
+          const setText = (id, v) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = v;
+          };
+          setText("inv-id", data.id);
+          setText("inv-date", data.date);
+          setText("inv-due", data.due || data.date);
+          setText("inv-billto-name", data.billTo?.name || data.dealer || "");
+          setText("inv-billto-email", data.billTo?.email || "");
+          setText("inv-billto-phone", data.billTo?.phone || "");
+          setText("inv-billto-address", data.billTo?.address || "");
+
+          const itemsBody = document.getElementById("inv-items");
+          if (itemsBody) {
+            itemsBody.innerHTML = (data.items || [])
+              .map((i) => {
+                const amount = (i.qty * i.rate).toFixed(2);
+                return `<tr><td>${i.desc}</td><td>${
+                  i.qty
+                }</td><td>${i.rate.toFixed(2)}</td><td>${amount}</td></tr>`;
+              })
+              .join("");
+          }
+          const subtotal = (data.items || []).reduce(
+            (s, i) => s + i.qty * i.rate,
+            0
+          );
+          const tax = subtotal * (data.taxRate || 0);
+          const total = subtotal + tax;
+          document.getElementById(
+            "inv-subtotal"
+          ).textContent = `₹ ${subtotal.toFixed(2)}`;
+          document.getElementById("inv-tax").textContent = `₹ ${tax.toFixed(
+            2
+          )}`;
+          document.getElementById("inv-total").textContent = `₹ ${total.toFixed(
+            2
+          )}`;
+        }
+
+        // Modal controls and sharing
+        const overlay = document.getElementById("modal-overlay");
+        const invoiceModal = document.getElementById("invoice-modal");
+        const dlBtn = document.getElementById("invoice-download-btn");
+        const shareWa = document.getElementById("invoice-share-wa");
+        const shareEmail = document.getElementById("invoice-share-email");
+        const shareNative = document.getElementById("invoice-share-native");
+        const closeBtn = document.getElementById("invoice-close-btn");
+
+        function openInvoice(inv) {
+          const data = {
+            id: inv.id,
+            date: inv.date,
+            due: inv.date,
+            dealer: inv.dealer,
+            items: inv.items,
+            taxRate: inv.taxRate,
+          };
+          renderInvoice(data);
+          overlay.style.display = "flex";
+          invoiceModal.style.display = "block";
+        }
+        function closeInvoice() {
+          overlay.style.display = "none";
+          invoiceModal.style.display = "none";
+        }
+        if (closeBtn) closeBtn.addEventListener("click", closeInvoice);
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) closeInvoice();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeInvoice();
+        });
+        if (dlBtn) dlBtn.addEventListener("click", () => window.print());
+        function currentShareText() {
+          const id = document.getElementById("inv-id").textContent;
+          const total = document.getElementById("inv-total").textContent;
+          return `Invoice ${id} - Total: ${total}`;
+        }
+        if (shareWa)
+          shareWa.addEventListener("click", () => {
+            const txt = encodeURIComponent(currentShareText());
+            window.open(`https://wa.me/?text=${txt}`, "_blank");
+          });
+        if (shareEmail)
+          shareEmail.addEventListener("click", () => {
+            const subject = encodeURIComponent(
+              "Invoice " + document.getElementById("inv-id").textContent
+            );
+            const body = encodeURIComponent(currentShareText());
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+          });
+        if (shareNative)
+          shareNative.addEventListener("click", async () => {
+            const title =
+              "Invoice " + document.getElementById("inv-id").textContent;
+            const text = currentShareText();
+            if (navigator.share) {
+              try {
+                await navigator.share({ title, text });
+              } catch (e) {}
+            } else {
+              try {
+                await navigator.clipboard.writeText(text);
+                showToast("Copied to clipboard");
+              } catch (e) {
+                showToast("Share not available", true);
+              }
+            }
+          });
+      }
+
+      function setupDashboardFilters() {
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        const monthFilter = document.getElementById("month-filter");
+
+        filterButtons.forEach((button) => {
+          if (!button.classList.contains("active")) {
+            button.addEventListener("click", function () {
+              filterButtons.forEach((btn) => btn.classList.remove("active"));
+              this.classList.add("active");
+
+              const filterText = this.textContent;
+              showToast(`Dashboard filtered for ${filterText}`);
+            });
+          }
+        });
+
+        monthFilter.addEventListener("change", function () {
+          const selectedMonth = this.options[this.selectedIndex].text;
+          showToast(`Dashboard data updated for ${selectedMonth}`);
+        });
+      }
+
+      function showToast(message, isError = false) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.className = "toast";
+
+        if (isError) {
+          toast.classList.add("error");
+        }
+
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>
